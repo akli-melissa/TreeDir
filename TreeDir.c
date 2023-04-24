@@ -31,7 +31,7 @@ int main(){
     init();
     while (1){
         printf("> ");
-        gets(arg);
+        fgets(arg, size/10, stdin);
         char *commande = get_commande(arg);
         printf("%s\n", commande);
         if (strcmp(commande, "mkdir") == 0){

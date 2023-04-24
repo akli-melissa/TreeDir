@@ -1,5 +1,6 @@
 #include "commandes.h"
 
+//rep courant
 noeud* REP_COURANT;
 
 void init(){

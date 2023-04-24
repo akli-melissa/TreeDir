@@ -25,6 +25,7 @@
 	typedef struct liste_noeud liste_noeud;
 
 	//   rep courant
+	//noeud* REP_COURANT;
 
 	void init();
 	void mkdir(char*); 
