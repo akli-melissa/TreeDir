@@ -1,10 +1,7 @@
 #include "commandes.h"
-
 noeud* REP_COURANT;
 
-void init(){
-	REP_COURANT = NULL;
-}
+
 
 noeud* init_rep(char *nom, liste_noeud* fils, noeud *pere){
 	noeud* nouveau = malloc(sizeof(noeud));
@@ -21,21 +18,26 @@ noeud* init_rep(char *nom, liste_noeud* fils, noeud *pere){
 	nouveau->fils = fils;
 	return nouveau;
 }
-
+void init(){
+	REP_COURANT = NULL;
+}
 void mkdir(char *nom){
+	printf("hfsfbdf\n");
 	if (nom == NULL) return;
+	printf("jjjj\n");
 	// Vérification de la validité du nom
     if (strlen(nom) == 0 || strlen(nom) > 99) {
         printf("Erreur : le nom du dossier doit avoir entre 1 et 99 caractères.\n");
         return;
     }
+	printf("mmmmm\n");
     for (int i = 0; i < strlen(nom); i++) {
         if (!isalnum(nom[i])) {
             printf("Erreur : le nom du dossier doit contenir seulement des caractères alphanumériques.\n");
             return;
         }   
     }
-
+    printf("hello\n");
     if (REP_COURANT == NULL){
     	REP_COURANT = init_rep("/", NULL, NULL);
     	return;
@@ -129,11 +131,13 @@ void cd(char *chemin){
 }
 
 void pwd_aux(noeud *rep){
-	if (rep && !strcmp(rep->nom, "/")) return;
+
+	if ( rep ==NULL || strcmp(rep->nom, "") == 0) return ;
 	pwd_aux(rep->pere);
 	printf("/%s", rep->nom);
 }
 
 void pwd(){
+	
 	pwd_aux(REP_COURANT);
 }

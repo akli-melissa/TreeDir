@@ -1,14 +1,8 @@
-run:TreeDir
-	./TreeDir
+TreeDir.o : TreeDir.c
+	gcc -Wall *.c -o TreeDir
 
-TreeDir : TreeDir.o commandes.o
-	gcc -o TreeDir TreeDir.o commandes.o
-
-TreeDir.o : commandes.o
-	gcc -c -Wall TreeDir.c
-
-commandes.o : commandes.h
-	gcc -c -Wall commandes.c
+commandes.o : commandes.c
+	gcc -o commandes.o -c commandes.c
 
 clean:
 	rm *.o
