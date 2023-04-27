@@ -30,5 +30,6 @@
 	void mkdir(char*); 
 	void pwd();
 	void cd(char*);
-
+    char **split(char *str, const char delim) ;
+	char** str_split(char* a_str, const char a_delim ,size_t *nbelemnts);
 #endif

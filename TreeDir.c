@@ -35,9 +35,21 @@ int main(){
     init();
     while (1){
         printf("> ");
-        scanf("%s",arg); 
+        fgets(arg, size, stdin);
+        char * position;
+        position=strchr(arg,'\n');
+        if (position!=NULL)
+        {
+            *position='\0';
+        }
+        printf("%s\n", arg);
+        size_t  nbargv;
+        char ** argvs = str_split(arg, ' ', &nbargv);
+         printf("%s %s  %d\n",argvs[0], argvs[1], nbargv);
         char *commande=malloc(sizeof(char)*size);
-        strcpy(commande ,get_commande(arg));
+        strcpy(commande ,argvs[0]);
+        //  strcpy(commande ,rgv[0]);
+
         /**
          * essaye d'utiliser une fonction split ici pour construire un tableau d'arguments 
          * split prend e argument une chaine et un dilimiteur pour couper ta chaine dans ce cas 
@@ -47,13 +59,17 @@ int main(){
          * si tu as besin d'explication just call bissssss 
          */
         if (strcmp(commande, "mkdir") == 0){
-            
-            mkdir(get_name(commande));
+            printf("i'm making a dir \n");
+            mkdir(argvs[1]);
+            //  mkdir(argv[1]);
         }
-        if (strcmp(commande, "cd") == 0){
-            cd(get_name(commande));
+        else if (strcmp(commande, "cd") == 0){
+            printf("i'm changing th dir\n");
+            cd(argvs[1]);
+
         }
-        if (strcmp(commande, "pwd") == 0){
+        else if (strcmp(commande, "pwd") == 0){
+            printf("where i'm");
             pwd();
         }
         else{

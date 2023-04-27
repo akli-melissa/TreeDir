@@ -16,6 +16,7 @@ noeud* init_rep(char *nom, liste_noeud* fils, noeud *pere){
 		nouveau->racine = pere->racine;
 	}
 	nouveau->fils = fils;
+	printf("hi  %s\n", nouveau->nom);
 	return nouveau;
 }
 void init(){
@@ -40,9 +41,9 @@ void mkdir(char *nom){
     printf("hello\n");
     if (REP_COURANT == NULL){
     	REP_COURANT = init_rep("/", NULL, NULL);
-    	return;
+		// return;
     }
-
+     printf("hello i'm \n");
     // Vérification si un dossier portant le même nom existe déjà
     liste_noeud* fils = REP_COURANT->fils;
     while (fils != NULL) {
@@ -86,7 +87,55 @@ char **split(char *str, const char delim) {
 
    return result;
 }
+char** str_split(char* a_str, const char a_delim ,size_t *nbelemnts)
+{
+   
+    char** result    = 0;
+    size_t count     = 0;
+    char* tmp        = a_str;
+    char* last_comma = 0;
+    char delim[2];
+    delim[0] = a_delim;
+    delim[1] = 0;
+   
+    /* Count how many elements will be extracted. */
+    while (*tmp)
+    {
+        if (a_delim == *tmp )
+        {
+            count++;
+            last_comma = tmp;
+        }
+        tmp++;
+    }
+    
+    /* Add space for trailing token. */
+    count += last_comma < (a_str + strlen(a_str) - 1);
+   
+    /* Add space for terminating null string so caller
+       knows where the list of returned strings ends. */
+	   * nbelemnts = count;
+    count++;
+    
+    result = malloc(sizeof(char*) * count);
 
+    if (result)
+    {
+        size_t idx  = 0;
+        char* token = strtok(a_str, delim);
+
+        while (token)
+        {
+           // assert(idx < count);
+            *(result + idx++) = strdup(token);
+            token = strtok(0, delim);
+        }
+        //assert(idx == count - 1);
+        *(result + idx) = 0;
+    }
+
+    return result;
+}
 void free_2d_array(char **tab){
 	while (tab){
 		free(*tab);
