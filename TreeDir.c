@@ -1,6 +1,6 @@
 #include "commandes.h"
 
-char *get_name(char *chaine){
+char *get_arg(char *chaine){
     while (chaine && *chaine != ' '){
         chaine++;
     }
@@ -35,9 +35,9 @@ int main(){
         char *commande = get_commande(arg);
         printf("%s\n", commande);
         if (strcmp(commande, "mkdir") == 0){
-                mkdir(get_name(commande));
+                mkdir(get_arg(commande));
         }else if (strcmp(commande, "cd") == 0){
-            cd(get_name(commande));
+            cd(get_arg(commande));
         }else if (strcmp(commande, "pwd") == 0){
             pwd();
         }
