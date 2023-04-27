@@ -3,23 +3,22 @@
 noeud* REP_COURANT;
 
 void init(){
-	REP_COURANT = NULL;
+	REP_COURANT = malloc(sizeof(noeud));
+    REP_COURANT->est_dossier = true;
+    strcpy(REP_COURANT->nom, RACINE);
+    REP_COURANT->pere = REP_COURANT;
+    REP_COURANT->racine = REP_COURANT;
+    REP_COURANT->fils = NULL;
 }
 
 noeud* init_rep(char *nom, liste_noeud* fils, noeud *pere){
-	noeud* nouveau = malloc(sizeof(noeud));
-	nouveau->est_dossier = true;
-	strcpy(nouveau->nom, nom);
-	if (pere == NULL){
-		nouveau->pere = nouveau;
-		nouveau->racine = nouveau;
-	}
-	else{
-		nouveau->pere = pere;
-		nouveau->racine = pere->racine;
-	}
-	nouveau->fils = fils;
-	return nouveau;
+    noeud* nouveau = malloc(sizeof(noeud));
+    strcpy(nouveau->nom, nom);
+    nouveau->est_dossier = true;
+    nouveau->pere = pere;
+    nouveau->racine = pere->racine;
+    nouveau->fils = fils;
+    return nouveau;
 }
 
 void mkdir(char *nom){
@@ -35,12 +34,6 @@ void mkdir(char *nom){
             return;
         }   
     }
-
-    if (REP_COURANT == NULL){
-    	REP_COURANT = init_rep("/", NULL, NULL);
-    	return;
-    }
-
     // Vérification si un dossier portant le même nom existe déjà
     liste_noeud* fils = REP_COURANT->fils;
     while (fils != NULL) {
@@ -57,44 +50,46 @@ void mkdir(char *nom){
     // Ajout du nouveau noeud dossier à la liste des fils du noeud REP_COURANT
     liste_noeud* nouvel_element = malloc(sizeof(liste_noeud));
     nouvel_element->no = nouveau;
-    nouvel_element->succ = NULL;
-    if (REP_COURANT->fils == NULL) {
-        REP_COURANT->fils = nouvel_element;
-    }
-    else {
-        liste_noeud* dernier = REP_COURANT->fils;
-        while (dernier->succ != NULL) {
-            dernier = dernier->succ;
-        } 
-        dernier->succ = nouvel_element;
-    }
+    nouvel_element->succ = REP_COURANT->fils;
+    REP_COURANT->fils = nouvel_element;
 }
 
 char **split(char *str, const char delim) {
-   char **result = NULL;
+   char **result = calloc(sizeof(char*) * MAX_ARGS, MAX_ARGS);
    char *token = strtok(str, &delim);
 
    int i = 0;
 
    while (token != NULL) {
-      result = realloc(result, sizeof(char*) * (i + 1));
-      result[i++] = strdup(token);
+      char *p = strchr(token, '\n'); 
+      if (p != NULL) *p = '\0';
+      result[i] = malloc(strlen(token) + 1);
+      strcpy(result[i], token);
       token = strtok(NULL, &delim);
+      i++;
    }
 
    return result;
 }
 
 void free_2d_array(char **tab){
-	while (tab){
-		free(*tab);
-		tab++;
+    int i = 0;
+	while (tab && tab[i] != 0){
+		free(tab[i]);
+		i++;
 	}
-	free(tab);
+    free(tab);
 }
 
 void cd(char *chemin){
-	if (chemin == NULL) return;
+	if (chemin == NULL){
+        REP_COURANT = REP_COURANT->racine;
+        return;
+    }
+    if (strcmp(chemin, "..") == 0){
+        REP_COURANT = REP_COURANT->pere;   
+        return;
+    }
 	noeud *rep;
 	liste_noeud *fils;
 	if (chemin && chemin[0] == '/'){
@@ -106,11 +101,12 @@ void cd(char *chemin){
 	}
 	char **dossiers = split(chemin, '/');
 	int i=0;
-	int exsist = 0;
-	while (dossiers){
+	int exsist;
+	while (dossiers && dossiers[i] != 0){
+        exsist = 0;
 		fils = rep->fils;
 		while (fils){
-			if (fils->no->est_dossier && strcmp(fils->no->nom, *(dossiers+i))){
+			if (fils->no->est_dossier && strcmp(fils->no->nom, dossiers[i]) == 0){
 				rep = fils->no;
 				exsist = 1;
 				break;
@@ -122,18 +118,31 @@ void cd(char *chemin){
 			free_2d_array(dossiers);
 			return;
 		}
-		dossiers++;
+		i++;
 	}
 	REP_COURANT = rep;
 	free_2d_array(dossiers);
 }
 
 void pwd_aux(noeud *rep){
-	if (rep && !strcmp(rep->nom, "/")) return;
+	if ( rep ==NULL || strcmp(rep->nom, RACINE) == 0){
+        printf("%s", RACINE);
+        return ;
+    }
 	pwd_aux(rep->pere);
-	printf("/%s", rep->nom);
+	printf("%s/", rep->nom);
 }
 
 void pwd(){
 	pwd_aux(REP_COURANT);
+    printf("\n");
+}
+
+void ls(){
+    liste_noeud* noeuds = REP_COURANT->fils;
+    if (!noeuds) printf("Repertoire vide\n");
+    while (noeuds){
+        printf("%s\n", noeuds->no->nom);
+        noeuds = noeuds->succ;
+    }
 }

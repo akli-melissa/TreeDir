@@ -1,49 +1,40 @@
 #include "commandes.h"
-
-char *get_arg(char *chaine){
-    while (chaine && *chaine != ' '){
-        chaine++;
-    }
-    while (chaine && *chaine == ' '){
-        chaine++;
-    }
-    if (chaine == NULL){
-        printf("Erreur deuxieme arg\n");
-        return NULL;
-    }
-    return chaine;
-}
-
-char *get_commande(char *nom){
-    char *sauv = nom;
-    while (nom && *nom != ' '){
-        nom++;
-    }
-    char *result = malloc(size);
-    strncpy(result, sauv, nom-sauv-1);
-    return result;
-}
-
-//mkdir aaaaa
+#include <string.h>
+#include <stdio.h>
 
 int main(){
-    char *arg = malloc(size);
+    char *arg = malloc(SIZE);
     init();
     while (1){
         printf("> ");
-        gets(arg);
-        char *commande = get_commande(arg);
-        printf("%s\n", commande);
-        if (strcmp(commande, "mkdir") == 0){
-                mkdir(get_arg(commande));
-        }else if (strcmp(commande, "cd") == 0){
-            cd(get_arg(commande));
-        }else if (strcmp(commande, "pwd") == 0){
+        fgets(arg, SIZE, stdin);
+        fflush(stdin);
+        char ** argvs = split(arg, ' ');
+        /**
+         * essaye d'utiliser une fonction split ici pour construire un tableau d'arguments 
+         * split prend e argument une chaine et un dilimiteur pour couper ta chaine dans ce cas 
+         * c'est l'espace
+         * comme ça argv[0] qui répresente la première case de ton tableau sera la commande 
+         * et argv[1] qui représente la deuxième case sera la première optien
+         * si tu as besin d'explication just call bissssss 
+         */
+        if (strcmp(argvs[0], "mkdir") == 0){
+            mkdir(argvs[1]);
+        }
+        else if (strcmp(argvs[0], "cd") == 0){
+            cd(argvs[1]);
+        }
+        else if (strcmp(argvs[0], "pwd") == 0){
             pwd();
+        }
+        else if (strcmp(argvs[0], "ls") == 0){
+            ls();
         }
         else{
             printf("Erreur dans la commande\n");
         }
+        if (argvs) free_2d_array(argvs);
     }
+    free(arg);
     exit(0);
 }

@@ -5,7 +5,9 @@
 	#include <stdbool.h>
 	#include <ctype.h>
 
-	#define size 1000
+	#define SIZE 1000
+	#define MAX_ARGS 100
+	#define RACINE "/"
 
 	// Définition de la structure 
 	struct noeud;
@@ -29,6 +31,8 @@
 	void init();
 	void mkdir(char*); 
 	void pwd();
+	void ls();
 	void cd(char*);
-
+    char **split(char*, const char) ;
+	void free_2d_array(char**);
 #endif
