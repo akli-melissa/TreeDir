@@ -33,6 +33,9 @@ int main(){
         else if (strcmp(argvs[0], "touch") == 0){
             touch(argvs[1]);
         }
+        else if (strcmp(argvs[0], "print") == 0){
+            print();
+        }
         else{
             printf("Erreur dans la commande\n");
         }

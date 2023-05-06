@@ -36,4 +36,5 @@
     char **split(char*, const char) ;
 	void free_2d_array(char**);
 	void touch(char*);
+	void print();
 #endif

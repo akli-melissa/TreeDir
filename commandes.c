@@ -190,3 +190,38 @@ void ls(){
         noeuds = noeuds->succ;
     }
 }
+
+int countFils(noeud* rep) {
+    int count = 0;
+    liste_noeud* fils = rep->fils;
+    while (fils != NULL) {
+        count++;
+        fils = fils->succ;
+    }
+    return count;
+}
+
+void print_aux(noeud* rep)
+{
+    if(rep->est_dossier)
+    {
+        printf("Noeud: %s (D), Pere: %s, %d fils: \n" , rep->nom, rep->pere->nom, countFils(rep));
+        printf(" ");
+        liste_noeud* fils = rep->fils;
+        while(fils != NULL)
+        {
+            print_aux(fils->no);
+            fils = fils->succ;
+        }
+    }
+    else 
+    {
+        printf("Noeud: %s (F), Pere: %s \n", rep->nom, rep->pere->nom);
+    }
+}
+
+void print()
+{
+    print_aux(REP_COURANT->racine);
+    printf("\n");
+}
