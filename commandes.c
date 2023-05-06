@@ -206,7 +206,7 @@ void print_aux(noeud* rep)
     if(rep->est_dossier)
     {
         printf("Noeud: %s (D), Pere: %s, %d fils: \n" , rep->nom, rep->pere->nom, countFils(rep));
-        printf(" ");
+        printf("    ");
         liste_noeud* fils = rep->fils;
         while(fils != NULL)
         {
