@@ -21,6 +21,17 @@ noeud* init_rep(char *nom, liste_noeud* fils, noeud *pere){
     return nouveau;
 }
 
+noeud* init_fichier(char *nom, noeud *pere)
+{
+    noeud* nouveau = malloc(sizeof(noeud));
+    strcpy(nouveau->nom, nom);
+    nouveau->est_dossier = false;
+    nouveau->pere = pere;
+    nouveau->racine = pere->racine;
+    nouveau->fils = NULL;
+    return nouveau; 
+}
+
 void mkdir(char *nom){
 	if (nom == NULL) return;
 	// Vérification de la validité du nom
@@ -54,6 +65,39 @@ void mkdir(char *nom){
     REP_COURANT->fils = nouvel_element;
 }
 
+void touch(char *nom)
+{
+    if (nom == NULL) return;
+	// Vérification de la validité du nom
+    if (strlen(nom) == 0 || strlen(nom) > 99) {
+        printf("Erreur : le nom du fichier doit avoir entre 1 et 99 caractères.\n");
+        return;
+    }
+    for (int i = 0; i < strlen(nom); i++) {
+        if (!isalnum(nom[i])) {
+            printf("Erreur : le nom du fichier doit contenir seulement des caractères alphanumériques.\n");
+            return;
+        }   
+    }
+    // Vérification si un dossier portant le même nom existe déjà
+    liste_noeud* fils = REP_COURANT->fils;
+    while (fils != NULL) {
+        if (strcmp(fils->no->nom, nom) == 0) {
+            printf("Erreur : un fichier ou dossier portant le même nom existe déjà.\n");
+            return;
+        }
+        fils = fils->succ;
+    }
+    
+    // Création du nouveau noeud dossier
+    noeud* nouveau = init_fichier(nom, REP_COURANT);
+    
+    // Ajout du nouveau noeud dossier à la liste des fils du noeud REP_COURANT
+    liste_noeud* nouvel_element = malloc(sizeof(liste_noeud));
+    nouvel_element->no = nouveau;
+    nouvel_element->succ = REP_COURANT->fils;
+    REP_COURANT->fils = nouvel_element;
+}
 char **split(char *str, const char delim) {
    char **result = calloc(sizeof(char*) * MAX_ARGS, MAX_ARGS);
    char *token = strtok(str, &delim);
