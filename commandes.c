@@ -201,27 +201,26 @@ int countFils(noeud* rep) {
     return count;
 }
 
-void print_aux(noeud* rep)
+void print_aux(noeud* rep, int intendation)
 {
     if(rep->est_dossier)
     {
-        printf("Noeud: %s (D), Pere: %s, %d fils: \n" , rep->nom, rep->pere->nom, countFils(rep));
-        printf("    ");
+        printf("%*sNoeud: %s (D), Pere: %s, %d fils: \n" ,intendation, "", rep->nom, rep->pere->nom, countFils(rep));
         liste_noeud* fils = rep->fils;
         while(fils != NULL)
         {
-            print_aux(fils->no);
+            print_aux(fils->no, intendation + 4);
             fils = fils->succ;
         }
     }
     else 
     {
-        printf("Noeud: %s (F), Pere: %s \n", rep->nom, rep->pere->nom);
+        printf("%*sNoeud: %s (F), Pere: %s \n",intendation, "", rep->nom, rep->pere->nom);
     }
 }
 
 void print()
 {
-    print_aux(REP_COURANT->racine);
+    print_aux(REP_COURANT->racine,0);
     printf("\n");
 }
