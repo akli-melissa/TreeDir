@@ -22,7 +22,7 @@ int main(){
             mkdir(argvs[1]);
         }
         else if (strcmp(argvs[0], "cd") == 0){
-            cd(argvs[1]);
+            cd(argvs[1], NULL);
         }
         else if (strcmp(argvs[0], "pwd") == 0){
             pwd();

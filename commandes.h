@@ -32,7 +32,7 @@
 	void mkdir(char*); 
 	void pwd();
 	void ls();
-	void cd(char*);
+	void cd(char*, noeud*);
     char **split(char*, const char) ;
 	void free_2d_array(char**);
 #endif

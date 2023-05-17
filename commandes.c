@@ -2,16 +2,24 @@
 
 noeud* REP_COURANT;
 
-void init(){
-	REP_COURANT = malloc(sizeof(noeud));
-    REP_COURANT->est_dossier = true;
-    strcpy(REP_COURANT->nom, RACINE);
-    REP_COURANT->pere = REP_COURANT;
-    REP_COURANT->racine = REP_COURANT;
-    REP_COURANT->fils = NULL;
+static void set_rep(noeud **rep1, noued **rep2, noued *rep){
+    if (rep2 == NULL){
+        *rep1 = rep;
+    }else{
+        *rep2 = rep;
+    }
 }
 
-noeud* init_rep(char *nom, liste_noeud* fils, noeud *pere){
+static void pwd_aux(noeud *rep){
+    if (rep == NULL || strcmp(rep->nom, RACINE) == 0){
+        printf("%s", RACINE);
+        return ;
+    }
+    pwd_aux(rep->pere);
+    printf("%s/", rep->nom);
+}
+
+static noeud* init_rep(char *nom, liste_noeud* fils, noeud *pere){
     noeud* nouveau = malloc(sizeof(noeud));
     strcpy(nouveau->nom, nom);
     nouveau->est_dossier = true;
@@ -19,6 +27,15 @@ noeud* init_rep(char *nom, liste_noeud* fils, noeud *pere){
     nouveau->racine = pere->racine;
     nouveau->fils = fils;
     return nouveau;
+}
+
+void init(){
+	REP_COURANT = malloc(sizeof(noeud));
+    REP_COURANT->est_dossier = true;
+    strcpy(REP_COURANT->nom, RACINE);
+    REP_COURANT->pere = REP_COURANT;
+    REP_COURANT->racine = REP_COURANT;
+    REP_COURANT->fils = NULL;
 }
 
 void mkdir(char *nom){
@@ -81,13 +98,13 @@ void free_2d_array(char **tab){
     free(tab);
 }
 
-void cd(char *chemin){
+void cd(char *chemin, noued **new_rep){
 	if (chemin == NULL){
-        REP_COURANT = REP_COURANT->racine;
+        set_rep(&REP_COURANT, new_rep, REP_COURANT->racine);
         return;
     }
     if (strcmp(chemin, "..") == 0){
-        REP_COURANT = REP_COURANT->pere;   
+        set_rep(&REP_COURANT, new_rep, REP_COURANT->pere);   
         return;
     }
 	noeud *rep;
@@ -120,17 +137,8 @@ void cd(char *chemin){
 		}
 		i++;
 	}
-	REP_COURANT = rep;
+	set_rep(REP_COURANT, new_rep, rep);
 	free_2d_array(dossiers);
-}
-
-void pwd_aux(noeud *rep){
-	if ( rep ==NULL || strcmp(rep->nom, RACINE) == 0){
-        printf("%s", RACINE);
-        return ;
-    }
-	pwd_aux(rep->pere);
-	printf("%s/", rep->nom);
 }
 
 void pwd(){
