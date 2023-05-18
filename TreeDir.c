@@ -30,11 +30,18 @@ int main(){
         else if (strcmp(argvs[0], "ls") == 0){
             ls();
         }
+        else if (strcmp(argvs[0], "touch") == 0){
+            touch(argvs[1]);
+        }
+        else if (strcmp(argvs[0], "print") == 0){
+            print();
+        }
         else{
             printf("Erreur dans la commande\n");
         }
         if (argvs) free_2d_array(argvs);
     }
+    freeAll();
     free(arg);
     exit(0);
 }

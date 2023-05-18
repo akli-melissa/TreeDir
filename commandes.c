@@ -2,7 +2,7 @@
 
 noeud* REP_COURANT;
 
-static void set_rep(noeud **rep1, noued **rep2, noued *rep){
+static void set_rep(noeud **rep1, noeud **rep2, noeud *rep){
     if (rep2 == NULL){
         *rep1 = rep;
     }else{
@@ -38,6 +38,64 @@ void init(){
     REP_COURANT->fils = NULL;
 }
 
+static noeud* init_fichier(char *nom, noeud *pere){
+    noeud* nouveau = malloc(sizeof(noeud));
+    strcpy(nouveau->nom, nom);
+    nouveau->est_dossier = false;
+    nouveau->pere = pere;
+    nouveau->racine = pere->racine;
+    nouveau->fils = NULL;
+    return nouveau; 
+}
+
+static int countFils(noeud* rep) {
+    int count = 0;
+    liste_noeud* fils = rep->fils;
+    while (fils != NULL) {
+        count++;
+        fils = fils->succ;
+    }
+    return count;
+}
+
+static void print_aux(noeud* rep){
+    if(rep->est_dossier)
+    {
+        printf("Noeud: %s (D), Pere: %s, %d fils: \n" , rep->nom, rep->pere->nom, countFils(rep));
+        printf("    ");
+        liste_noeud* fils = rep->fils;
+        while(fils != NULL)
+        {
+            print_aux(fils->no);
+            fils = fils->succ;
+        }
+    }
+    else 
+    {
+        printf("Noeud: %s (F), Pere: %s \n", rep->nom, rep->pere->nom);
+    }
+}
+
+static int estParent(noeud *fils, noeud *pere){
+    while (pere && pere->pere != pere){
+        if (fils == pere) return 1;
+        pere = pere->pere;
+    }
+    return 0;
+}
+
+static void freeAllAux(noeud *racine){
+    if (!racine) return;
+    liste_noeud *fils = racine->fils, *sauv;
+    while (fils){
+        freeAll(fils->no);
+        sauv = fils;
+        fils = fils->succ;
+        free(sauv);
+    }
+    free(racine);
+}
+
 void mkdir(char *nom){
 	if (nom == NULL) return;
 	// Vérification de la validité du nom
@@ -63,6 +121,40 @@ void mkdir(char *nom){
     
     // Création du nouveau noeud dossier
     noeud* nouveau = init_rep(nom, NULL, REP_COURANT);
+    
+    // Ajout du nouveau noeud dossier à la liste des fils du noeud REP_COURANT
+    liste_noeud* nouvel_element = malloc(sizeof(liste_noeud));
+    nouvel_element->no = nouveau;
+    nouvel_element->succ = REP_COURANT->fils;
+    REP_COURANT->fils = nouvel_element;
+}
+
+void touch(char *nom)
+{
+    if (nom == NULL) return;
+	// Vérification de la validité du nom
+    if (strlen(nom) == 0 || strlen(nom) > 99) {
+        printf("Erreur : le nom du fichier doit avoir entre 1 et 99 caractères.\n");
+        return;
+    }
+    for (int i = 0; i < strlen(nom); i++) {
+        if (!isalnum(nom[i])) {
+            printf("Erreur : le nom du fichier doit contenir seulement des caractères alphanumériques.\n");
+            return;
+        }   
+    }
+    // Vérification si un dossier portant le même nom existe déjà
+    liste_noeud* fils = REP_COURANT->fils;
+    while (fils != NULL) {
+        if (strcmp(fils->no->nom, nom) == 0) {
+            printf("Erreur : un fichier ou dossier portant le même nom existe déjà.\n");
+            return;
+        }
+        fils = fils->succ;
+    }
+    
+    // Création du nouveau noeud dossier
+    noeud* nouveau = init_fichier(nom, REP_COURANT);
     
     // Ajout du nouveau noeud dossier à la liste des fils du noeud REP_COURANT
     liste_noeud* nouvel_element = malloc(sizeof(liste_noeud));
@@ -98,14 +190,14 @@ void free_2d_array(char **tab){
     free(tab);
 }
 
-void cd(char *chemin, noued **new_rep){
+int cd(char *chemin, noeud **new_rep){
 	if (chemin == NULL){
         set_rep(&REP_COURANT, new_rep, REP_COURANT->racine);
-        return;
+        return 0;
     }
     if (strcmp(chemin, "..") == 0){
         set_rep(&REP_COURANT, new_rep, REP_COURANT->pere);   
-        return;
+        return 0;
     }
 	noeud *rep;
 	liste_noeud *fils;
@@ -133,12 +225,13 @@ void cd(char *chemin, noued **new_rep){
 		if (exsist == 0){
 			printf("Erreur dans le chemin : %s\n", chemin);
 			free_2d_array(dossiers);
-			return;
+			return -1;
 		}
 		i++;
 	}
-	set_rep(REP_COURANT, new_rep, rep);
+	set_rep(&REP_COURANT, new_rep, rep);
 	free_2d_array(dossiers);
+    return 0;
 }
 
 void pwd(){
@@ -153,4 +246,31 @@ void ls(){
         printf("%s\n", noeuds->no->nom);
         noeuds = noeuds->succ;
     }
+}
+
+void print(){
+    print_aux(REP_COURANT->racine);
+    printf("\n");
+}
+
+void rm(char *path){
+    noeud *rmNode = malloc(sizeof(noeud));
+    if (cd(path, &rmNode) == -1 || 
+            (IS_ABS(path) && estParent(REP_COURANT, rmNode))) return;
+
+    liste_noeud *fils = rmNode->pere->fils, *sauv = fils;
+    while(fils){
+        if(fils->no == rmNode){
+            if (sauv == fils) rmNode->pere->fils = sauv->succ;
+            sauv->succ = fils->succ;
+            break;
+        }
+        sauv = fils;
+        fils = fils->succ;
+    }
+    freeAllAux(rmNode);
+}
+
+void freeAll(){
+    freeAllAux(REP_COURANT->racine);
 }

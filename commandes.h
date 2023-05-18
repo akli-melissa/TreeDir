@@ -8,7 +8,8 @@
 	#define SIZE 1000
 	#define MAX_ARGS 100
 	#define RACINE "/"
-
+	#define IS_ABS(path) *path == '/'
+	
 	// Définition de la structure 
 	struct noeud;
 	struct liste_noeud;
@@ -26,13 +27,16 @@
 	typedef struct noeud noeud;
 	typedef struct liste_noeud liste_noeud;
 
-	//   rep courant
-
 	void init();
 	void mkdir(char*); 
 	void pwd();
 	void ls();
-	void cd(char*, noeud*);
+	int cd(char*, noeud**);
     char **split(char*, const char) ;
 	void free_2d_array(char**);
+	void touch(char*);
+	void print();
+	void freeAll();
+	void rm(char*);
+
 #endif
