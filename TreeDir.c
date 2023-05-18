@@ -2,13 +2,17 @@
 #include <string.h>
 #include <stdio.h>
 
-int main(){
+
+int main(int argc, char **argv){
+
+    FILE *file = fopen(argv[1], "r");
+    if (file == NULL){
+        perror("file : ");
+        exit(-1);
+    }
     char *arg = malloc(SIZE);
     init();
-    while (1){
-        printf("> ");
-        fgets(arg, SIZE, stdin);
-        fflush(stdin);
+    while (fgets(arg, SIZE, file)){
         char ** argvs = split(arg, ' ');
         /**
          * essaye d'utiliser une fonction split ici pour construire un tableau d'arguments 
@@ -22,7 +26,7 @@ int main(){
             mkdir(argvs[1]);
         }
         else if (strcmp(argvs[0], "cd") == 0){
-            cd(argvs[1], NULL);
+            cd(argvs[1]);
         }
         else if (strcmp(argvs[0], "pwd") == 0){
             pwd();
@@ -39,6 +43,10 @@ int main(){
             rm(argvs[1]);
         }else if (strcmp(argvs[0], "exit") == 0){
             break;
+        }else if (strcmp(argvs[0], "cp") == 0){
+            cp(argvs[1], argvs[2]);
+        }else if (strcmp(argvs[0], "mv") == 0){
+            mv(argvs[1], argvs[2]);
         }
         else{
             printf("Erreur dans la commande\n");

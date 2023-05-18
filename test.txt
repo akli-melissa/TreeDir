@@ -1,0 +1,10 @@
+mkdir a
+cd a
+pwd
+touch b
+cd
+ls
+cp a c
+cd c
+print
+exit

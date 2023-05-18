@@ -9,6 +9,9 @@
 	#define MAX_ARGS 100
 	#define RACINE "/"
 	#define IS_ABS(path) *path == '/'
+	#define IS_REG 1
+	#define IS_REP 0
+	#define EMPTY(s) *s='\0'
 	
 	// Définition de la structure 
 	struct noeud;
@@ -31,12 +34,14 @@
 	void mkdir(char*); 
 	void pwd();
 	void ls();
-	int cd(char*, noeud**);
+	int cd(char*);
     char **split(char*, const char) ;
 	void free_2d_array(char**);
 	void touch(char*);
 	void print();
 	void freeAll();
 	void rm(char*);
+	int cp(char*, char*);
+	void mv(char*, char*);
 
 #endif

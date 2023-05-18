@@ -99,14 +99,56 @@ static void freeAllAux(noeud *racine){
     free(racine);
 }
 
-static char* truncatPath(char *path, char delim){
-    char *last = path + strlen(path) - 1;
-    while (last != path && *last != delim){
-        last--;
+static char* getLastToken(char* token, char delim){
+    char *end = token + strlen(token) - 1;
+    while (end != token && *end != delim){
+        end--;
     }
-    int len = strlen(path) - strlen(last);
-    path[len] = '\0';
-    return last+1;
+
+    char *dernierMot;
+
+    if (end != token){
+        dernierMot = malloc(strlen(end));
+        strcpy(dernierMot, end+1);
+        dernierMot[strlen(end)] = '\0';
+
+        token[strlen(token) - strlen(end) + 1] = '\0';
+    }else{
+        dernierMot = malloc(strlen(token));
+        strcpy(dernierMot, token);
+        strcpy(token, "/");
+    }
+
+    return dernierMot;
+}
+
+static noeud* singleCopy(noeud *node){
+    noeud *n=malloc(sizeof(noeud));
+    strcpy(n->nom, node->nom);
+    n->racine = node->racine;
+    n->fils = NULL;
+    n->pere = node->pere;
+    return n;
+}
+
+static void ajoutFils(noeud *pere, noeud *fils){
+    liste_noeud *nvFils = malloc(sizeof(liste_noeud));
+    nvFils->no = fils;
+    nvFils->succ = pere->fils;
+    pere->fils = nvFils;
+}
+
+static noeud* copyNode(noeud *src, noeud **start){
+    if (!src) return NULL;
+    liste_noeud *fils = src->fils;
+    noeud *nvNode = singleCopy(src);
+    if (*start == NULL) *start = nvNode;
+    while (fils){
+        ajoutFils(nvNode, 
+            copyNode(fils->no, start));
+        fils = fils->succ;
+    }
+    return nvNode;
 }
 
 void mkdir(char *nom){
@@ -203,8 +245,8 @@ void free_2d_array(char **tab){
     free(tab);
 }
 
-int cd(char *chemin, noeud **new_rep){
-	if (chemin == NULL){
+static int cdAux(char *chemin, noeud **new_rep, int check){
+    if (chemin == NULL){
         set_rep(&REP_COURANT, new_rep, REP_COURANT->racine);
         return 0;
     }
@@ -212,39 +254,43 @@ int cd(char *chemin, noeud **new_rep){
         set_rep(&REP_COURANT, new_rep, REP_COURANT->pere);   
         return 0;
     }
-	noeud *rep;
-	liste_noeud *fils;
-	if (chemin && chemin[0] == '/'){
-		//chemin abs /dossiers/math/examen/.....
-		rep = REP_COURANT->racine;
-	}else{
-		//chemin relatif math/examen/.....
-		rep = REP_COURANT;
-	}
-	char **dossiers = split(chemin, '/');
-	int i=0;
-	int exsist;
-	while (dossiers && dossiers[i] != 0){
+    noeud *rep;
+    liste_noeud *fils;
+    if (chemin && chemin[0] == '/'){
+        //chemin abs /dossiers/math/examen/.....
+        rep = REP_COURANT->racine;
+    }else{
+        //chemin relatif math/examen/.....
+        rep = REP_COURANT;
+    }
+    char **dossiers = split(chemin, '/');
+    int i=0;
+    int exsist;
+    while (dossiers && dossiers[i] != 0){
         exsist = 0;
-		fils = rep->fils;
-		while (fils){
-			if (fils->no->est_dossier && strcmp(fils->no->nom, dossiers[i]) == 0){
-				rep = fils->no;
-				exsist = 1;
-				break;
-			}
-			fils = fils->succ;
-		}
-		if (exsist == 0){
-			printf("Erreur dans le chemin : %s\n", chemin);
-			free_2d_array(dossiers);
-			return -1;
-		}
-		i++;
-	}
-	set_rep(&REP_COURANT, new_rep, rep);
-	free_2d_array(dossiers);
+        fils = rep->fils;
+        while (fils){
+            if ((check || fils->no->est_dossier) && strcmp(fils->no->nom, dossiers[i]) == 0){
+                rep = fils->no;
+                exsist = 1;
+                break;
+            }
+            fils = fils->succ;
+        }
+        if (exsist == 0){
+            printf("Erreur dans le chemin : %s\n", chemin);
+            free_2d_array(dossiers);
+            return -1;
+        }
+        i++;
+    }
+    set_rep(&REP_COURANT, new_rep, rep);
+    free_2d_array(dossiers);
     return 0;
+}
+
+int cd(char *chemin){
+	return cdAux(chemin, NULL, IS_REP);
 }
 
 void pwd(){
@@ -267,26 +313,10 @@ void print(){
 }
 
 void rm(char *path){
-    noeud *rmNode = malloc(sizeof(noeud));
-    char *last = truncatPath(path, '/');
+    noeud *rmNode;
 
-    if (cd(path, &rmNode) == -1) return;
-
-    liste_noeud *filsNode = rmNode->fils;
-    while (filsNode){
-        if (strcmp(filsNode->no->nom, last) == 0){
-            rmNode = filsNode->no;
-            break;
-        }
-        filsNode = filsNode->succ;
-    }
-
-    if (!filsNode){
-        printf("Erreur dans le chemin\n");
-        return;
-    }
-
-    if (IS_ABS(path) && estParent(rmNode, REP_COURANT)) return;
+    if (cdAux(path, &rmNode, IS_REG) == -1 ||
+        (IS_ABS(path) && estParent(rmNode, REP_COURANT))) return;
 
     liste_noeud *fils = rmNode->pere->fils, *sauv = fils;
     while(fils){
@@ -298,8 +328,40 @@ void rm(char *path){
         sauv = fils;
         fils = fils->succ;
     }
-    free(last);
+
     freeAllAux(rmNode);
+}
+
+int cp(char *src, char *dst){
+    noeud *srcNode, *dstNode;
+    char *dernierNom = getLastToken(dst, '/');
+    if (cdAux(src, &srcNode, IS_REG) == -1
+        || cdAux(dst, &dstNode, IS_REP) == -1 
+        || estParent(srcNode, dstNode)) return 0;
+    liste_noeud *fils = dstNode->fils;
+    
+    while (fils){
+        if (strcmp(fils->no->nom, dernierNom) == 0) return 0;
+        fils = fils->succ;
+    }
+
+    noeud *cpyNode = NULL;
+    copyNode(srcNode, &cpyNode);
+    EMPTY(cpyNode->nom);
+    strcpy(cpyNode->nom, dernierNom);
+
+    liste_noeud *nv = malloc(sizeof(liste_noeud));
+    nv->no = cpyNode;
+    nv->succ = dstNode->fils;
+    dstNode->fils = nv;
+
+    return 1;   
+}
+
+void mv(char *src, char *dst){
+    if (cp(src, dst)){
+        rm(src);
+    }
 }
 
 void freeAll(){
