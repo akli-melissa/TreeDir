@@ -10,14 +10,6 @@ int main(){
         fgets(arg, SIZE, stdin);
         fflush(stdin);
         char ** argvs = split(arg, ' ');
-        /**
-         * essaye d'utiliser une fonction split ici pour construire un tableau d'arguments 
-         * split prend e argument une chaine et un dilimiteur pour couper ta chaine dans ce cas 
-         * c'est l'espace
-         * comme ça argv[0] qui répresente la première case de ton tableau sera la commande 
-         * et argv[1] qui représente la deuxième case sera la première optien
-         * si tu as besin d'explication just call bissssss 
-         */
         if (strcmp(argvs[0], "mkdir") == 0){
             mkdir(argvs[1]);
         }
