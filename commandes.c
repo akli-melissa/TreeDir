@@ -58,24 +58,6 @@ static int countFils(noeud* rep) {
     return count;
 }
 
-static void print_aux(noeud* rep){
-    if(rep->est_dossier)
-    {
-        printf("Noeud: %s (D), Pere: %s, %d fils: \n" , rep->nom, rep->pere->nom, countFils(rep));
-        printf("    ");
-        liste_noeud* fils = rep->fils;
-        while(fils != NULL)
-        {
-            print_aux(fils->no);
-            fils = fils->succ;
-        }
-    }
-    else 
-    {
-        printf("Noeud: %s (F), Pere: %s \n", rep->nom, rep->pere->nom);
-    }
-}
-
 static int estParent(noeud *fils, noeud *pere){
     while (pere && pere->pere != pere){
         if (fils == pere){
@@ -120,6 +102,23 @@ static char* getLastToken(char* token, char delim){
     }
 
     return dernierMot;
+}
+
+static void print_aux(noeud* rep, int intendation){
+    if(rep->est_dossier)
+    {
+        printf("%*sNoeud: %s (D), Pere: %s, %d fils: \n" ,intendation, "", rep->nom, rep->pere->nom, countFils(rep));
+        liste_noeud* fils = rep->fils;
+        while(fils != NULL)
+        {
+            print_aux(fils->no, intendation + 4);
+            fils = fils->succ;
+        }
+    }
+    else 
+    {
+        printf("%*sNoeud: %s (F), Pere: %s \n",intendation, "", rep->nom, rep->pere->nom);
+    }
 }
 
 static noeud* singleCopy(noeud *node){
@@ -298,6 +297,11 @@ void pwd(){
     printf("\n");
 }
 
+void print(){
+    print_aux(REP_COURANT->racine,0);
+    printf("\n");
+}
+
 void ls(){
     liste_noeud* noeuds = REP_COURANT->fils;
     if (!noeuds) printf("Repertoire vide\n");
@@ -307,10 +311,6 @@ void ls(){
     }
 }
 
-void print(){
-    print_aux(REP_COURANT->racine);
-    printf("\n");
-}
 
 void rm(char *path){
     noeud *rmNode;
