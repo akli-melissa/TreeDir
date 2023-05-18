@@ -35,6 +35,10 @@ int main(){
         }
         else if (strcmp(argvs[0], "print") == 0){
             print();
+        }else if (strcmp(argvs[0], "rm") == 0){
+            rm(argvs[1]);
+        }else if (strcmp(argvs[0], "exit") == 0){
+            break;
         }
         else{
             printf("Erreur dans la commande\n");

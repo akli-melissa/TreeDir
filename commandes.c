@@ -78,7 +78,10 @@ static void print_aux(noeud* rep){
 
 static int estParent(noeud *fils, noeud *pere){
     while (pere && pere->pere != pere){
-        if (fils == pere) return 1;
+        if (fils == pere){
+            printf("Erreur le noeud est parant du repertoire courant\n");
+            return 1;
+        }
         pere = pere->pere;
     }
     return 0;
@@ -88,12 +91,22 @@ static void freeAllAux(noeud *racine){
     if (!racine) return;
     liste_noeud *fils = racine->fils, *sauv;
     while (fils){
-        freeAll(fils->no);
+        freeAllAux(fils->no);
         sauv = fils;
         fils = fils->succ;
         free(sauv);
     }
     free(racine);
+}
+
+static char* truncatPath(char *path, char delim){
+    char *last = path + strlen(path) - 1;
+    while (last != path && *last != delim){
+        last--;
+    }
+    int len = strlen(path) - strlen(last);
+    path[len] = '\0';
+    return last+1;
 }
 
 void mkdir(char *nom){
@@ -147,7 +160,7 @@ void touch(char *nom)
     liste_noeud* fils = REP_COURANT->fils;
     while (fils != NULL) {
         if (strcmp(fils->no->nom, nom) == 0) {
-            printf("Erreur : un fichier ou dossier portant le même nom existe déjà.\n");
+            printf("Erreur : un fichier ou dossier portant le meme nom existe dejà.\n");
             return;
         }
         fils = fils->succ;
@@ -255,8 +268,25 @@ void print(){
 
 void rm(char *path){
     noeud *rmNode = malloc(sizeof(noeud));
-    if (cd(path, &rmNode) == -1 || 
-            (IS_ABS(path) && estParent(REP_COURANT, rmNode))) return;
+    char *last = truncatPath(path, '/');
+
+    if (cd(path, &rmNode) == -1) return;
+
+    liste_noeud *filsNode = rmNode->fils;
+    while (filsNode){
+        if (strcmp(filsNode->no->nom, last) == 0){
+            rmNode = filsNode->no;
+            break;
+        }
+        filsNode = filsNode->succ;
+    }
+
+    if (!filsNode){
+        printf("Erreur dans le chemin\n");
+        return;
+    }
+
+    if (IS_ABS(path) && estParent(rmNode, REP_COURANT)) return;
 
     liste_noeud *fils = rmNode->pere->fils, *sauv = fils;
     while(fils){
@@ -268,6 +298,7 @@ void rm(char *path){
         sauv = fils;
         fils = fils->succ;
     }
+    free(last);
     freeAllAux(rmNode);
 }
 
