@@ -12,7 +12,7 @@ int main(int argc, char **argv){
     }
     char *arg = malloc(SIZE);
     init();
-    while (fgets(arg, SIZE, file)){
+    while (fgets(arg, SIZE, file) && strcmp(arg, "\n")){
         char ** argvs = split(arg, ' ');
         if (strcmp(argvs[0], "mkdir") == 0){
             mkdir(argvs[1]);

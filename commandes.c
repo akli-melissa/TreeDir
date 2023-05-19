@@ -248,7 +248,7 @@ void free_2d_array(char **tab){
 
 static int cdAux(char *chemin, noeud **new_rep, int check){
     if (chemin == NULL || strcmp(chemin, "") == 0){
-        set_rep(&REP_COURANT, new_rep, REP_COURANT);
+        set_rep(&REP_COURANT, new_rep, REP_COURANT->racine);
         return 0;
     }
     if (strcmp(chemin, "..") == 0){
@@ -335,10 +335,11 @@ void rm(char *path){
 }
 
 int cp(char *src, char *dst){
-    noeud *srcNode, *dstNode;
+    noeud *srcNode, *dstNode = REP_COURANT;
     char *dernierNom = getLastToken(dst, '/');
+
     if (cdAux(src, &srcNode, IS_REG) == -1
-        || cdAux(dst, &dstNode, IS_REP) == -1 
+        || (strcmp(dst, "") && (cdAux(dst, &dstNode, IS_REP) == -1)) 
         || estParent(srcNode, dstNode)) return 0;
     liste_noeud *fils = dstNode->fils;
     
