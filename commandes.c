@@ -98,7 +98,7 @@ static char* getLastToken(char* token, char delim){
     }else{
         dernierMot = malloc(strlen(token));
         strcpy(dernierMot, token);
-        strcpy(token, "/");
+        strcpy(token, "");
     }
 
     return dernierMot;
@@ -247,8 +247,8 @@ void free_2d_array(char **tab){
 }
 
 static int cdAux(char *chemin, noeud **new_rep, int check){
-    if (chemin == NULL){
-        set_rep(&REP_COURANT, new_rep, REP_COURANT->racine);
+    if (chemin == NULL || strcmp(chemin, "") == 0){
+        set_rep(&REP_COURANT, new_rep, REP_COURANT);
         return 0;
     }
     if (strcmp(chemin, "..") == 0){
