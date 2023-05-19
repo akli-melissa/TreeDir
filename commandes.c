@@ -97,8 +97,14 @@ static char* getLastToken(char* token, char delim){
         token[strlen(token) - strlen(end) + 1] = '\0';
     }else{
         dernierMot = malloc(strlen(token));
-        strcpy(dernierMot, token);
-        strcpy(token, "");
+        if (IS_ABS(token)){
+            strcpy(dernierMot, token+1);
+            strcpy(token, "/");
+        }
+        else{
+            strcpy(dernierMot, token);
+            strcpy(token, "");
+        }
     }
 
     return dernierMot;
