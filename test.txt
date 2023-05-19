@@ -1,10 +1,30 @@
-mkdir a
-cd a
-pwd
-touch b
+mkdir Rep1
+mkdir Rep2
+mkdir Rep3
+cd Rep1
+mkdir Rep11
+mkdir Rep12
+cd Rep11
+touch file111
+cd ..
+cd Rep12
+touch file121
+touch file122
 cd
-ls
-cp a c
-cd c
+cd Rep2
+touch file21
+touch file22
+cd ..
+cp Rep1 Rep3/Rep31
 print
-exit
+cd Rep3/Rep31
+rm Rep11
+mkdir Rep311
+ls
+cd
+cd Rep1
+pwd
+ls
+print
+rm /Rep2
+print

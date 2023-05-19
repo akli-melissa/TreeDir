@@ -127,6 +127,7 @@ static noeud* singleCopy(noeud *node){
     n->racine = node->racine;
     n->fils = NULL;
     n->pere = node->pere;
+    n->est_dossier = node->est_dossier;
     return n;
 }
 
@@ -143,8 +144,9 @@ static noeud* copyNode(noeud *src, noeud **start){
     noeud *nvNode = singleCopy(src);
     if (*start == NULL) *start = nvNode;
     while (fils){
-        ajoutFils(nvNode, 
-            copyNode(fils->no, start));
+        noeud *f = copyNode(fils->no, start);
+        ajoutFils(nvNode, f);
+        f->pere = nvNode;
         fils = fils->succ;
     }
     return nvNode;
@@ -349,6 +351,7 @@ int cp(char *src, char *dst){
     copyNode(srcNode, &cpyNode);
     EMPTY(cpyNode->nom);
     strcpy(cpyNode->nom, dernierNom);
+    cpyNode->pere = dstNode;
 
     liste_noeud *nv = malloc(sizeof(liste_noeud));
     nv->no = cpyNode;
